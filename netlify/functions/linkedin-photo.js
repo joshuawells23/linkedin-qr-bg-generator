@@ -40,17 +40,24 @@ export default async (req) => {
       });
     }
 
-    const imageUrl = ogMatch[1];
+    // Decode HTML entities (&amp; → &, etc.)
+    const imageUrl = ogMatch[1]
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"');
 
     // Proxy the image to avoid CORS issues on the client
     const imgRes = await fetch(imageUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+        'Referer': 'https://www.linkedin.com/',
       },
     });
 
     if (!imgRes.ok) {
-      // Fall back to just returning the URL
+      // Fall back to returning the cleaned URL for the client to try directly
       return new Response(JSON.stringify({ imageUrl }), {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
