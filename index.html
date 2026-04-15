@@ -482,8 +482,11 @@
   <div class="app-layout">
     <!-- Form -->
     <div class="form-panel">
-      <label for="fullName">Full Name</label>
-      <input type="text" id="fullName" placeholder="Jane Doe">
+      <label for="firstName">First Name</label>
+      <input type="text" id="firstName" placeholder="Jane">
+
+      <label for="lastName">Last Name</label>
+      <input type="text" id="lastName" placeholder="Doe">
 
       <label for="titleField">Title</label>
       <input type="text" id="titleField" placeholder="Senior Flutter Developer">
@@ -605,7 +608,8 @@
 
   <script>
     // ── Elements ──
-    const fullNameInput = document.getElementById('fullName');
+    const firstNameInput = document.getElementById('firstName');
+    const lastNameInput = document.getElementById('lastName');
     const titleInput = document.getElementById('titleField');
     const linkedinInput = document.getElementById('linkedinUrl');
     const headshotFile = document.getElementById('headshotFile');
@@ -656,39 +660,34 @@
     generateSparkles();
 
     // ── Initials ──
-    function getInitials(name) {
-      if (!name.trim()) return '';
-      const parts = name.trim().split(/\s+/);
-      if (parts.length === 1) return parts[0][0].toUpperCase();
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    function getInitials() {
+      const f = firstNameInput.value.trim();
+      const l = lastNameInput.value.trim();
+      let initials = '';
+      if (f) initials += f[0].toUpperCase();
+      if (l) initials += l[0].toUpperCase();
+      return initials;
     }
 
-    function updateInitials() {
-      const initials = getInitials(fullNameInput.value);
+    function updateName() {
+      const f = firstNameInput.value.trim();
+      const l = lastNameInput.value.trim();
+      if (!f && !l) {
+        personName.innerHTML = 'Your Name';
+        personName.classList.add('empty');
+      } else {
+        const lines = [f, l].filter(Boolean);
+        personName.innerHTML = lines.join('<br>');
+        personName.classList.remove('empty');
+      }
+      const initials = getInitials();
       headshotInitials.textContent = initials;
       personInitials.textContent = initials;
     }
 
     // ── Live preview updates ──
-    fullNameInput.addEventListener('input', () => {
-      const val = fullNameInput.value.trim();
-      if (!val) {
-        personName.innerHTML = 'Your Name';
-        personName.classList.add('empty');
-      } else {
-        // Split first name / last name onto separate lines
-        const parts = val.split(/\s+/);
-        if (parts.length > 1) {
-          const first = parts[0];
-          const last = parts.slice(1).join(' ');
-          personName.innerHTML = first + '<br>' + last;
-        } else {
-          personName.textContent = val;
-        }
-        personName.classList.remove('empty');
-      }
-      updateInitials();
-    });
+    firstNameInput.addEventListener('input', updateName);
+    lastNameInput.addEventListener('input', updateName);
 
     titleInput.addEventListener('input', () => {
       const val = titleInput.value.trim();
@@ -832,9 +831,9 @@
           logging: false,
         });
 
-        const firstName = fullNameInput.value.trim().split(/\s+/)[0] || 'unnamed';
-        const lastName = fullNameInput.value.trim().split(/\s+/).slice(1).join('-') || '';
-        const slug = [firstName, lastName].filter(Boolean).join('-').toLowerCase().replace(/[^a-z0-9-]/g, '');
+        const first = firstNameInput.value.trim() || 'unnamed';
+        const last = lastNameInput.value.trim() || '';
+        const slug = [first, last].filter(Boolean).join('-').toLowerCase().replace(/[^a-z0-9-]/g, '');
 
         let link = document.createElement('a');
         if (format === 'jpg') {
@@ -858,7 +857,7 @@
     btnJpg.addEventListener('click', () => exportWallpaper('jpg'));
 
     // ── Init ──
-    updateInitials();
+    updateName();
   </script>
 </body>
 </html>
