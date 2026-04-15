@@ -253,6 +253,36 @@
     }
     .btn-secondary:hover { background: rgba(255,255,255,0.12); }
 
+    /* ── Theme picker ── */
+    .theme-picker {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .theme-swatch {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .theme-swatch:hover {
+      transform: scale(1.08);
+    }
+
+    .theme-swatch.active {
+      border-color: #fff;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+    }
+
+    .swatch-blue { background: linear-gradient(135deg, #0e1a42, #2A48DE); }
+    .swatch-purple { background: linear-gradient(135deg, #150e30, #6420C6); }
+    .swatch-pink { background: linear-gradient(135deg, #2e0e24, #FF1C81); }
+
     /* ── Preview container ── */
     .preview-panel {
       position: relative;
@@ -277,30 +307,49 @@
       transform: scale(0.33333);
     }
 
+    /* ── Theme variables ── */
+    .wallpaper {
+      --bg-gradient: linear-gradient(168deg, #060d22 0%, #0e1a42 20%, #1a2d7a 40%, #2A48DE 58%, #1f3599 75%, #0A1530 100%);
+      --glow-1: rgba(42,72,222,0.3);
+      --glow-2: rgba(100,32,198,0.3);
+    }
+
+    .wallpaper.theme-purple {
+      --bg-gradient: linear-gradient(168deg, #08061a 0%, #150e30 20%, #351a6e 40%, #6420C6 58%, #3d1880 75%, #0c0a1e 100%);
+      --glow-1: rgba(100,32,198,0.3);
+      --glow-2: rgba(42,72,222,0.3);
+    }
+
+    .wallpaper.theme-pink {
+      --bg-gradient: linear-gradient(168deg, #140812 0%, #2e0e24 20%, #6e1a50 40%, #FF1C81 58%, #991252 75%, #120610 100%);
+      --glow-1: rgba(255,28,129,0.3);
+      --glow-2: rgba(100,32,198,0.3);
+    }
+
     .wallpaper-bg {
       position: absolute;
       inset: 0;
-      background: linear-gradient(168deg, #060d22 0%, #0e1a42 20%, #1a2d7a 40%, #2A48DE 58%, #1f3599 75%, #0A1530 100%);
+      background: var(--bg-gradient);
     }
 
-    .glow-blue {
+    .glow-1 {
       position: absolute;
       width: 520px;
       height: 520px;
       top: 280px;
       left: -60px;
-      background: radial-gradient(circle, rgba(42,72,222,0.3) 0%, transparent 70%);
+      background: radial-gradient(circle, var(--glow-1) 0%, transparent 70%);
       filter: blur(70px);
       pointer-events: none;
     }
 
-    .glow-purple {
+    .glow-2 {
       position: absolute;
       width: 400px;
       height: 400px;
       top: 900px;
       right: -40px;
-      background: radial-gradient(circle, rgba(100,32,198,0.3) 0%, transparent 70%);
+      background: radial-gradient(circle, var(--glow-2) 0%, transparent 70%);
       filter: blur(70px);
       pointer-events: none;
     }
@@ -513,6 +562,13 @@
         <input type="file" id="headshotFile" accept="image/*" hidden>
       </div>
 
+      <label>Background</label>
+      <div class="theme-picker">
+        <div class="theme-swatch swatch-blue active" data-theme="blue" title="Blue"></div>
+        <div class="theme-swatch swatch-purple" data-theme="purple" title="Purple"></div>
+        <div class="theme-swatch swatch-pink" data-theme="pink" title="Pink"></div>
+      </div>
+
       <div class="btn-row">
         <button class="btn btn-primary" id="btnPng">Download PNG</button>
         <button class="btn btn-secondary" id="btnJpg">Download JPG</button>
@@ -524,8 +580,8 @@
       <div class="preview-frame">
         <div class="wallpaper" id="wallpaper">
           <div class="wallpaper-bg"></div>
-          <div class="glow-blue"></div>
-          <div class="glow-purple"></div>
+          <div class="glow-1"></div>
+          <div class="glow-2"></div>
 
           <!-- Sparkles -->
           <div class="sparkles" id="sparkles"></div>
@@ -631,6 +687,18 @@
 
     let qrInstance = null;
     let uploadedImageData = null;
+
+    // ── Theme picker ──
+    const wallpaper = document.getElementById('wallpaper');
+    document.querySelectorAll('.theme-swatch').forEach(swatch => {
+      swatch.addEventListener('click', () => {
+        document.querySelector('.theme-swatch.active').classList.remove('active');
+        swatch.classList.add('active');
+        const theme = swatch.dataset.theme;
+        wallpaper.classList.remove('theme-purple', 'theme-pink');
+        if (theme !== 'blue') wallpaper.classList.add('theme-' + theme);
+      });
+    });
 
     // ── Sparkles ──
     function generateSparkles() {
@@ -814,7 +882,6 @@
     async function exportWallpaper(format) {
       exportOverlay.classList.add('active');
 
-      const wallpaper = document.getElementById('wallpaper');
       const origTransform = wallpaper.style.transform;
       wallpaper.style.transform = 'none';
 
