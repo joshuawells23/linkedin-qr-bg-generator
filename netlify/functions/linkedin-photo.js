@@ -10,12 +10,14 @@ export default async (req) => {
   }
 
   try {
-    // Fetch the LinkedIn profile page
-    const res = await fetch(linkedinUrl, {
+    // Strip trailing slash for consistent redirects
+    const cleanUrl = linkedinUrl.replace(/\/+$/, '');
+
+    // Fetch the LinkedIn profile page (Twitterbot UA gets og:image access)
+    const res = await fetch(cleanUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-        'Accept': 'text/html,application/xhtml+xml',
-        'Accept-Language': 'en-US,en;q=0.9',
+        'User-Agent': 'Twitterbot/1.0',
+        'Accept': 'text/html',
       },
       redirect: 'follow',
     });
